@@ -4,7 +4,7 @@ plugins {
 
 apply plugin : "java-library"
 version '1.0-final'
-group = 'org.lab6'
+group = 'org.lab7'
 
 repositories {
     mavenCentral()

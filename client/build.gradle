@@ -7,7 +7,7 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'idea'
-group = 'org.lab6'
+group = 'org.lab7'
 version = '1.0-SNAPSHOT'
 
 repositories {
