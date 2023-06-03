@@ -14,6 +14,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Class that manages connections with clients
@@ -23,12 +26,9 @@ public class Server {
     private final Executor executor;
     public Selector selector;
     private int port;
-    private Socket socket;
     private ServerSocketChannel serverSocketChannel;
-    private SocketChannel channel;
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
-    private InputStream stream;
+    private ExecutorService channelThreadPool;
+    private ReentrantLock collectionLock;
 
     public Server(CollectionManager collectionManager) {
         this.port = 5555;
@@ -48,11 +48,11 @@ public class Server {
             }
         }
 
-        stream = System.in;
         this.collectionManager = collectionManager;
         this.executor = new Executor(collectionManager);
+        this.channelThreadPool = Executors.newFixedThreadPool(10);
+        this.collectionLock = new ReentrantLock();
     }
-
 
     public void run() {
         try {
@@ -67,7 +67,7 @@ public class Server {
                         channel.register(selector, SelectionKey.OP_READ);
                         System.out.println("new connection");
                     } else if (key.isReadable()) {
-                        handleRead(key, selector);
+                        channelThreadPool.execute(() -> handleRead(key, selector));
                     } else if (key.isWritable()) {
                         //handleWrite(key);
                         key.channel().register(selector, SelectionKey.OP_READ);
@@ -82,7 +82,6 @@ public class Server {
         }
     }
 
-
     private void handleWrite(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         byte[] data = (byte[]) (key.attachment());
@@ -91,9 +90,7 @@ public class Server {
 //        channel.close();
     }
 
-
-    public void handleRead(SelectionKey key, Selector selector) throws Exception {
-
+    public void handleRead(SelectionKey key, Selector selector) {
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(65536);
         try {
@@ -109,40 +106,59 @@ public class Server {
             CommandResponse response = new CommandResponse("Command not found", null);
 
             if (receivedObject instanceof CommandRequest) {
-                response = runCommand((CommandRequest) receivedObject);
+                CommandRequest request = (CommandRequest) receivedObject;
+                CommandResponse commandResponse = runCommand(request);
+                sendResponse(channel, commandResponse);
+                channel.register(selector, SelectionKey.OP_WRITE, serialize(commandResponse));
             }
-            sendResponse(channel, response);
-
-            channel.register(selector, SelectionKey.OP_WRITE, serialize(response));
         } catch (SocketException e) {
             System.out.println("Client disconnected");
-            channel.close();
+            try {
+                channel.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-
-    private void sendResponse(SocketChannel socketChannel, Object response) throws IOException {
+    private void sendResponse(SocketChannel socketChannel, Object response) {
         ByteBuffer buffer = ByteBuffer.allocate(65536);
 
         // Сериализация объекта в массив байтов
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-        objectOutputStream.writeObject(response);
-        objectOutputStream.flush();
+        ObjectOutputStream objectOutputStream = null;
+        try {
+            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(response);
+            objectOutputStream.flush();
 
-        byte[] bytes = byteArrayOutputStream.toByteArray();
-        buffer.put(bytes);
+            byte[] bytes = byteArrayOutputStream.toByteArray();
+            buffer.put(bytes);
 
-        buffer.flip(); // Переключение на режим записи
-        socketChannel.write(buffer);
-
-        objectOutputStream.close();
-        byteArrayOutputStream.close();
+            buffer.flip(); // Переключение на режим записи
+            socketChannel.write(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (objectOutputStream != null)
+                    objectOutputStream.close();
+                byteArrayOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-
     public CommandResponse runCommand(CommandRequest userCommand) {
-        return executor.executeCommand(userCommand);
+        collectionLock.lock();
+        try {
+            return executor.executeCommand(userCommand);
+        } finally {
+            collectionLock.unlock();
+        }
     }
 
     public byte[] serialize(Object obj) throws IOException {
@@ -158,5 +174,4 @@ public class Server {
         ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
         return objectInputStream.readObject();
     }
-
 }
