@@ -6,8 +6,10 @@ import managers.FileManager;
 public class App {
     public static void main(String[] args) {
         String path = null;
+        String user = null;
         try {
             path = System.getenv("FILENAME");
+            user = System.getenv("USER");
         } catch (Exception e) {
             System.out.println("Environment variable FILENAME is not set");
             System.exit(1);
@@ -25,7 +27,7 @@ public class App {
             System.exit(1);
         }
 
-
+        System.out.println(user);
         Server server = new Server(collectionManager);
 
         server.run();

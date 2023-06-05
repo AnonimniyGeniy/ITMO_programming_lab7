@@ -99,10 +99,12 @@ public class Server {
                 channel.close();
                 return;
             }
+            if (buffer.position() == 0) {
+                return;
+            }
             byte[] data = buffer.array();
             buffer.clear();
             Object receivedObject = deserialize(data);
-            // Обработка
             CommandResponse response = new CommandResponse("Command not found", null);
 
             if (receivedObject instanceof CommandRequest) {
@@ -126,7 +128,6 @@ public class Server {
     private void sendResponse(SocketChannel socketChannel, Object response) {
         ByteBuffer buffer = ByteBuffer.allocate(65536);
 
-        // Сериализация объекта в массив байтов
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
         try {
@@ -137,7 +138,7 @@ public class Server {
             byte[] bytes = byteArrayOutputStream.toByteArray();
             buffer.put(bytes);
 
-            buffer.flip(); // Переключение на режим записи
+            buffer.flip();
             socketChannel.write(buffer);
         } catch (IOException e) {
             e.printStackTrace();
