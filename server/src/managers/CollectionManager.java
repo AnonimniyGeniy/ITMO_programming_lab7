@@ -4,6 +4,8 @@ import collections.HumanBeing;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -24,10 +26,25 @@ public class CollectionManager {
     };
     private TreeMap<Integer, HumanBeing> humanBeingCollection;
 
+    private HashMap<String, String> users = new HashMap<>(); // username: password
+
+    private HashMap<Integer, String> idOwner = new HashMap<>(); // id: username
+
+
+    /**
+     * Constructor for CollectionManager
+     *
+     * @param fileManager - FileManager for working with file
+     */
     public CollectionManager(FileManager fileManager) {
         this.fileManager = fileManager;
         humanBeingCollection = new TreeMap(humanBeingComparator);
         creationTime = LocalDateTime.now();
+
+        users.put("user", "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f");
+        idOwner.put(1, "user");
+        idOwner.put(2, "user");
+        idOwner.put(3, "user");
 
     }
 
@@ -38,13 +55,29 @@ public class CollectionManager {
         return humanBeingCollection;
     }
 
+
+    /*
+    check if user has access to element with id
+     */
+    public boolean checkAccess(String username, int id) {
+        return idOwner.get(id).equals(username);
+    }
+
     /**
      * Setter for controlled collection
      *
-     * @param humanBeingCollection
+     * @param humanBeingCollection - collection to set
+     * @param username             - username of user that owns collection
      */
-    public void setHumanBeingCollection(TreeMap<Integer, HumanBeing> humanBeingCollection) {
-        this.humanBeingCollection = humanBeingCollection;
+    public void setHumanBeingCollection(TreeMap<Integer, HumanBeing> humanBeingCollection, String username) {
+        //delete all elements from collection that are owned by user
+        for (int i = 0; i < humanBeingCollection.size(); i++) {
+            if (idOwner.get(i).equals(username)) {
+                //добавить проверку на то что все в бд сохранилось
+                this.humanBeingCollection.remove(i);
+            }
+        }
+
     }
 
     /**
@@ -59,8 +92,10 @@ public class CollectionManager {
     /**
      * @param obj
      */
-    public void insert(int id, HumanBeing obj) {
+    public void insert(int id, HumanBeing obj, String username) {
         this.humanBeingCollection.put(id, obj);
+        idOwner.put(id, username);
+        //надо дописать добавление в бд и добавление строчки что нужный юзер добавил
     }
 
     /**
@@ -93,9 +128,10 @@ public class CollectionManager {
      * @param id - id of element to remove
      * @return true if element was removed, false if element was not found
      */
-    public boolean removeById(int id) {
-        if (humanBeingCollection.containsKey(id)) {
-            humanBeingCollection.remove(id);
+    public boolean removeById(int id, String username) {
+        if (this.humanBeingCollection.containsKey(id) && idOwner.get(id).equals(username)) {
+            //добавить проверку на то что все в бд сохранилось
+            this.humanBeingCollection.remove(id);
             return true;
         } else {
             return false;
@@ -105,8 +141,11 @@ public class CollectionManager {
     /**
      * removes all elements from collection that are greater than given
      */
-    public void removeGreater(HumanBeing humanBeing) {
-        humanBeingCollection.entrySet().removeIf(entry -> entry.getValue().compareTo(humanBeing) > 0);
+    public void removeGreater(HumanBeing humanBeing, String username) {
+        humanBeingCollection.entrySet().removeIf(
+                entry -> (entry.getValue().compareTo(humanBeing) > 0 &&
+                        idOwner.get(entry.getKey()).equals(username))
+        );
     }
 
     /**
@@ -114,6 +153,13 @@ public class CollectionManager {
      */
     public HumanBeing[] getArray() {
         return humanBeingCollection.values().toArray(new HumanBeing[0]);
+    }
+
+    /*
+    returns map of all users and their passwords
+     */
+    public Map<String, String> getUsers() {
+        return users;
     }
 
 }

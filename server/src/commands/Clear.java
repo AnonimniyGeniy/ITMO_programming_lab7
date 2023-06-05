@@ -28,7 +28,7 @@ public class Clear extends AbstractCommand {
      * @return Execution result
      */
     @Override
-    public CommandResponse execute(String[] args, Object object) {
-        return commandReceiver.clear(args, object);
+    public CommandResponse execute(String[] args, Object object, String username) {
+        return commandReceiver.clear(args, object, username);
     }
 }

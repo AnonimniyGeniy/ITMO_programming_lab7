@@ -29,6 +29,6 @@ public interface Command {
      */
     //boolean execute(String[] args);
 
-    CommandResponse execute(String[] args, Object object);
+    CommandResponse execute(String[] args, Object object, String username);
 
 }

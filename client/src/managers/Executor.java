@@ -27,6 +27,8 @@ public class Executor {
     private final List<String> recursionStack = new ArrayList<>();
     private final CommandManager commandManager;
     private Client client;
+    private String username;
+    private String password;
 
     /**
      * constructor for Executor
@@ -34,7 +36,7 @@ public class Executor {
      * @param commandManager - CommandManager
      *                       for managing commands
      */
-    public Executor(CommandManager commandManager, Console console, Client client) {
+    public Executor(CommandManager commandManager, Console console, Client client, String username, String password) {
 
         AskerManager.setAsker(Car.class, new CarAsker(console));
         AskerManager.setAsker(Coordinates.class, new CoordinatesAsker(console));
@@ -42,6 +44,8 @@ public class Executor {
         AskerManager.setAsker(WeaponType.class, new WeaponTypeAsker(console));
         this.commandManager = commandManager;
         this.client = client;
+        this.username = username;
+        this.password = password;
     }
 
     public void consoleMode() {
@@ -71,7 +75,7 @@ public class Executor {
                         String[] args = new String[command.length - 1];
                         System.arraycopy(command, 1, args, 0, command.length - 1);
 
-                        CommandRequest request = new CommandRequest(command[0], args, object);
+                        CommandRequest request = new CommandRequest(command[0], args, object, username, password);
                         manageResponse(request);
                         client.run(request);
                     } else {
@@ -164,7 +168,7 @@ public class Executor {
                     String[] args = new String[command.length - 1];
                     System.arraycopy(command, 1, args, 0, command.length - 1);
 
-                    CommandRequest request = new CommandRequest(command[0], args, object);
+                    CommandRequest request = new CommandRequest(command[0], args, object, username, password);
                     status = Status.OK;
                     manageResponse(request);
                     //somehow send request to server

@@ -15,8 +15,8 @@ public class Connect extends AbstractCommand{
     }
 
 
-    public CommandResponse execute(String[] argument, Object objArgument) {
-        return commandReceiver.connect(argument, commandManager);
+    public CommandResponse execute(String[] argument, Object objArgument, String username) {
+        return commandReceiver.connect(argument, commandManager, username);
     }
 }
 

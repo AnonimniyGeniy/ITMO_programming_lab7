@@ -29,8 +29,8 @@ public class Insert extends AbstractCommand {
     }
 
     @Override
-    public CommandResponse execute(String[] args, Object obj) {
-        return commandReceiver.insert(args, obj);
+    public CommandResponse execute(String[] args, Object obj, String username) {
+        return commandReceiver.insert(args, obj, username);
 
     }
 

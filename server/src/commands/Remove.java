@@ -18,7 +18,7 @@ public class Remove extends AbstractCommand {
     }
 
     @Override
-    public CommandResponse execute(String[] args, Object obj) {
-        return commandReceiver.remove(args, obj);
+    public CommandResponse execute(String[] args, Object obj, String username) {
+        return commandReceiver.remove(args, obj, username);
     }
 }

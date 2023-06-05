@@ -31,7 +31,7 @@ public class CommandReceiver {
         return new CommandResponse(stringBuilder.toString(), null);
     }
 
-    public CommandResponse update(String[] args, Object obj) {
+    public CommandResponse update(String[] args, Object obj, String username) {
         int key = Integer.parseInt(args[0]);
         Optional<HumanBeing> optionalHumanBeing = collectionManager.getHumanBeingCollection().values().stream()
                 .filter(human -> human.getId() == key)
@@ -42,9 +42,12 @@ public class CommandReceiver {
         }
         HumanBeing humanBeing = (HumanBeing) obj;
         humanBeing.setId(key);
-        collectionManager.removeById(key);
-        collectionManager.insert(key, humanBeing);
-        return new CommandResponse("Element updated successfully.", null);
+        if (collectionManager.removeById(key, username)){
+            collectionManager.insert(key, humanBeing, username);
+            return new CommandResponse("Element updated successfully.", null);
+        }else{
+            return new CommandResponse("You don't have permission to update this element or it doesn't exist.", null);
+        }
     }
 
     public CommandResponse save(String[] args, Object obj) {
@@ -53,27 +56,18 @@ public class CommandReceiver {
     }
 
 
-    public CommandResponse replaceIfLower(String[] args, Object obj) {
+    public CommandResponse replaceIfLower(String[] args, Object obj, String username) {
         //check if key exists
         int key = Integer.parseInt(args[0]);
-//
-//        HumanBeing humanBeing = (HumanBeing) obj;
-//        humanBeing.setId(key);
-//        if (collectionManager.getHumanBeingCollection().get(key).compareTo(humanBeing) > 0) {
-//            collectionManager.insert(key, humanBeing);
-//            return new CommandResponse("Element changed successfully.", null);
-//        } else {
-//            return new CommandResponse("Element is not lower.", null);
-//        }
         return collectionManager.getHumanBeingCollection().containsKey(key)
                 ? Optional.ofNullable((HumanBeing) obj)
                 .map(humanBeing -> {
                     humanBeing.setId(key);
-                    if (collectionManager.getHumanBeingCollection().get(key).compareTo(humanBeing) > 0) {
-                        collectionManager.insert(key, humanBeing);
+                    if (collectionManager.getHumanBeingCollection().get(key).compareTo(humanBeing) > 0 && collectionManager.checkAccess(username, key)) {
+                        collectionManager.insert(key, humanBeing, username);
                         return new CommandResponse("Element changed successfully.", null);
                     } else {
-                        return new CommandResponse("Element is not lower.", null);
+                        return new CommandResponse("Element is not lower or you don't have permission to change it.", null);
                     }
                 })
                 .orElse(new CommandResponse("Invalid object.", null))
@@ -81,16 +75,16 @@ public class CommandReceiver {
 
     }
 
-    public CommandResponse removeGreater(String[] args, Object obj) {
-        collectionManager.removeGreater((HumanBeing) obj);
+    public CommandResponse removeGreater(String[] args, Object obj, String username) {
+        collectionManager.removeGreater((HumanBeing) obj, username);
         return new CommandResponse("All greater elements was successfully removed", null);
     }
 
-    public CommandResponse remove(String[] args, Object obj) {
+    public CommandResponse remove(String[] args, Object obj, String username) {
         int id = Integer.parseInt(args[0]);
-        boolean isRemoved = collectionManager.removeById(id);
+        boolean isRemoved = collectionManager.removeById(id, username);
 
-        String message = isRemoved ? "Element with id " + id + " was removed" : "Element with id " + id + " wasn't found";
+        String message = isRemoved ? "Element with id " + id + " was removed" : "Element with id " + id + " wasn't found or you don't have permission to remove it";
 
         return new CommandResponse(message, null);
 
@@ -106,7 +100,7 @@ public class CommandReceiver {
         return new CommandResponse("Elements in descending order", elements);
     }
 
-    public CommandResponse insert(String[] args, Object obj) {
+    public CommandResponse insert(String[] args, Object obj, String username) {
         //console.println(args[0] + args[1]);
         int key = Integer.parseInt(args[0]);
 //        if (collectionManager.getHumanBeingCollection().containsKey(key)) {
@@ -123,7 +117,7 @@ public class CommandReceiver {
         HumanBeing humanBeing = null;
         humanBeing = (HumanBeing) obj;
         humanBeing.setId(key);
-        collectionManager.insert(key, humanBeing);
+        collectionManager.insert(key, humanBeing, username);
         return new CommandResponse("Element added successfully.", null);
 
     }
@@ -144,9 +138,11 @@ public class CommandReceiver {
         return new CommandResponse("Showed all elements of collection", elements);
     }
 
-    public CommandResponse clear(String[] args, Object object) {
-        collectionManager.setHumanBeingCollection(new TreeMap<>());
-        return new CommandResponse("Collection was cleared", null);
+    public CommandResponse clear(String[] args, Object object, String username) {
+
+        collectionManager.setHumanBeingCollection(new TreeMap<>(), username);
+
+        return new CommandResponse("All your elements was deleted", null);
     }
 
     public CommandResponse countGreaterThanCar(String[] args, Object obj) {
@@ -158,33 +154,6 @@ public class CommandReceiver {
     }
 
     public CommandResponse groupCountingByImpact(String[] args, Object obj) {
-//        HumanBeing[] elements = collectionManager.getArray();
-//        int[] impactSpeed = new int[elements.length];
-//        for (int i = 0; i < elements.length; i++) {
-//            impactSpeed[i] = elements[i].getImpactSpeed().intValue();
-//        }
-//        Map<Integer, Integer> counter = new HashMap<>();
-//
-//        for (int j : impactSpeed) {
-//            if (counter.containsKey(j)) {
-//                counter.replace(j, counter.get(j) + 1);
-//            } else {
-//                counter.put(j, 1);
-//            }
-//        }
-//
-//        StringBuilder stringBuilder = new StringBuilder();
-//
-//        for (Map.Entry<Integer, Integer> entry : counter.entrySet()) {
-//            stringBuilder.append("Impact speed: ")
-//                    .append(entry.getKey())
-//                    .append(" - ")
-//                    .append(entry.getValue())
-//                    .append(" elements")
-//                    .append(System.lineSeparator());
-//        }
-//
-//        String result = stringBuilder.toString();
         HumanBeing[] elements = collectionManager.getArray();
         int[] impactSpeed = Arrays.stream(elements)
                 .mapToInt(humanBeing -> humanBeing.getImpactSpeed().intValue())
@@ -205,33 +174,20 @@ public class CommandReceiver {
     }
 
     public CommandResponse history(String[] args, Object obj) {
-//        StringBuilder commands = new StringBuilder();
-//        String message = "Last 13 commands:";
         CommandManager commandManager = (CommandManager) obj;
-//        for (String command : commandManager.getCommandHistory()) {
-//            commands.append(command).append("\n");
-//        }
-
         String commands = Arrays.stream(commandManager.getCommandHistory().toArray())
                 .map(Object::toString)
                 .collect(Collectors.joining(System.lineSeparator()));
         return new CommandResponse("Last 13 commands: ", commands);
     }
 
-    public CommandResponse connect(String[] args, Object obj) {
+    public CommandResponse connect(String[] args, Object obj, String username) {
         CommandManager commandManager = (CommandManager) obj;
         AbstractCommand[] commands = commandManager.getCommandsArray();
-//        ArrayList<CommandDescription> commandDescriptions = new ArrayList<>();
-//        for (AbstractCommand command : commands) {
-//            if (!command.getName().equals("save")) {
-//                commandDescriptions.add(CommandDescriptionFactory.createCommandDescription(command.getClass()));
-//            }
-//        }
         List<CommandDescription> commandDescriptions = Arrays.stream(commands)
                 .filter(command -> !command.getName().equals("save"))
                 .map(command -> CommandDescriptionFactory.createCommandDescription(command.getClass()))
                 .collect(Collectors.toList());
-
         return new CommandResponse("Got commands", commandDescriptions);
     }
 }

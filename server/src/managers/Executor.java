@@ -61,19 +61,19 @@ public class Executor {
             if (userCommand.getElement() == null) {
                 //if history command give it command manager
                 if (userCommand.getCommandName().equals("history")) {
-                    response = command.execute((String[]) userCommand.getArguments(), commandManager);
+                    response = command.execute((String[]) userCommand.getArguments(), commandManager, userCommand.getUsername());
                     commandManager.addHistory(userCommand.getCommandName());
                 } else {
-                    response = command.execute((String[]) userCommand.getArguments(), null);
+                    response = command.execute((String[]) userCommand.getArguments(), null, userCommand.getUsername());
                     commandManager.addHistory(userCommand.getCommandName());
                 }
 
             } else {
-                response = command.execute((String[]) userCommand.getArguments(), userCommand.getElement());
+                response = command.execute((String[]) userCommand.getArguments(), userCommand.getElement(), userCommand.getUsername());
                 commandManager.addHistory(userCommand.getCommandName());
             }
             Command save = commandManager.getCommands().get("save");
-            save.execute(new String[]{}, null);
+            save.execute(new String[]{}, null, userCommand.getUsername());
             return response;
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

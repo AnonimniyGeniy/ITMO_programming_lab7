@@ -41,7 +41,7 @@ public class History extends AbstractCommand {
      * Method for executing this command
      */
     @Override
-    public CommandResponse execute(String[] args, Object obj) {
+    public CommandResponse execute(String[] args, Object obj, String username) {
         return commandReceiver.history(args, obj);
     }
 }

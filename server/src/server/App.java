@@ -23,6 +23,8 @@ public class App {
         FileManager fileManager = new FileManager(path);
         CollectionManager collectionManager = new CollectionManager(fileManager);
         DbManager dbManager = new DbManager(user.equals("s367132"));
+        dbManager.connect();
+
         try {
             collectionManager.loadCollection();
         } catch (Exception e) {
@@ -30,7 +32,7 @@ public class App {
             System.exit(1);
         }
 
-
+        //password: 12345678, enc: ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f
         Server server = new Server(collectionManager);
 
         server.run();

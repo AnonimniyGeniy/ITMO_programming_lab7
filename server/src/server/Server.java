@@ -82,13 +82,6 @@ public class Server {
         }
     }
 
-    private void handleWrite(SelectionKey key) throws IOException {
-        SocketChannel channel = (SocketChannel) key.channel();
-        byte[] data = (byte[]) (key.attachment());
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        channel.write(buffer);
-//        channel.close();
-    }
 
     public void handleRead(SelectionKey key, Selector selector) {
         SocketChannel channel = (SocketChannel) key.channel();

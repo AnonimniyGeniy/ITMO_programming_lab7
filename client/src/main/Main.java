@@ -2,13 +2,13 @@ package main;
 
 
 import collections.askers.PortAsker;
+import collections.askers.UserAsker;
 import commands.CommandDescription;
 import commands.CommandRequest;
 import commands.CommandResponse;
 import managers.*;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -20,7 +20,10 @@ public class Main {
         int port = PortAsker.askPort();
         Client client = new Client("localhost", port);
 
-        CommandRequest request = new CommandRequest("connect", new String[]{}, null);
+        String username = UserAsker.askUsername();
+        String password = UserAsker.askPassword();
+
+        CommandRequest request = new CommandRequest("connect", new String[]{}, null, username, password);
         CommandResponse commandResponse = client.run(request);
 
         ArrayList<CommandDescription> commandDescriptions = (ArrayList<CommandDescription>) commandResponse.getObject();
@@ -35,7 +38,7 @@ public class Main {
             commandsArray[i] = commandDescriptions.get(i);
         }
         CommandManager commandManager = new CommandManager(commandsArray);
-        Executor executor = new Executor(commandManager, console, client);
+        Executor executor = new Executor(commandManager, console, client, username, password);
 
         executor.consoleMode();
 

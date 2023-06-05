@@ -23,7 +23,7 @@ public class GroupCountingByImpact extends AbstractCommand {
 
 
     @Override
-    public CommandResponse execute(String[] args, Object obj) {
+    public CommandResponse execute(String[] args, Object obj, String username) {
         return commandReceiver.groupCountingByImpact(args, obj);
 
     }

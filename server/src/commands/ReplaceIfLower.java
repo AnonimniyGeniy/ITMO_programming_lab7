@@ -20,7 +20,7 @@ public class ReplaceIfLower extends AbstractCommand {
 
 
     @Override
-    public CommandResponse execute(String[] args, Object obj) {
-        return commandReceiver.replaceIfLower(args, obj);
+    public CommandResponse execute(String[] args, Object obj, String username) {
+        return commandReceiver.replaceIfLower(args, obj, username);
     }
 }

@@ -11,11 +11,15 @@ public class CommandRequest implements Serializable {
     private final String commandName;
     private final String[] arguments;
     private final Object object;
+    private final String username;
+    private final String password;
 
-    public CommandRequest(String commandName, String[] arguments, Object object) {
+    public CommandRequest(String commandName, String[] arguments, Object object, String username, String password) {
         this.commandName = commandName;
         this.arguments = arguments;
         this.object = object;
+        this.username = username;
+        this.password = password;
     }
 
 
@@ -29,5 +33,13 @@ public class CommandRequest implements Serializable {
 
     public Object getElement() {
         return object;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }

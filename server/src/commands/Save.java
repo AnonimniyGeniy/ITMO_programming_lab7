@@ -18,7 +18,7 @@ public class Save extends AbstractCommand {
     }
 
     @Override
-    public CommandResponse execute(String[] args, Object obj) {
+    public CommandResponse execute(String[] args, Object obj, String username) {
         return commandReceiver.save(args, obj);
     }
 

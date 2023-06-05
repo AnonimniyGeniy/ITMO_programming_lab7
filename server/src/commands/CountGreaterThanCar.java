@@ -26,7 +26,7 @@ public class CountGreaterThanCar extends AbstractCommand {
      * @param args arguments for command
      */
     @Override
-    public CommandResponse execute(String[] args, Object obj) {
+    public CommandResponse execute(String[] args, Object obj, String username) {
         return commandReceiver.countGreaterThanCar(args, obj);
     }
 

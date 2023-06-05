@@ -20,7 +20,7 @@ public class Update extends AbstractCommand {
     }
 
     @Override
-    public CommandResponse execute(String[] args, Object obj) {
-        return commandReceiver.update(args, obj);
+    public CommandResponse execute(String[] args, Object obj, String username) {
+        return commandReceiver.update(args, obj, username);
     }
 }
