@@ -1,8 +1,13 @@
 package managers;
 
-import collections.*;
+import collections.Car;
+import collections.Coordinates;
+import collections.HumanBeing;
+import collections.WeaponType;
+import models.User;
 
 import java.sql.*;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.TreeMap;
 
@@ -36,6 +41,7 @@ public class DbManager {
             System.out.println("Error while connecting to database: " + e.getMessage());
         }
     }
+
     /*
     method for adding human being to database
      */
@@ -57,7 +63,7 @@ public class DbManager {
             statement.setDouble(9, humanBeing.getMinutesOfWaiting());
             statement.setString(10, humanBeing.getWeaponType().name());
             statement.setString(11, humanBeing.getCar().getName());
-            statement.setInt(12,  userId);
+            statement.setInt(12, userId);
 
             int rowsAffected = statement.executeUpdate();
 
@@ -67,6 +73,25 @@ public class DbManager {
             return false;
         }
     }
+    /*
+    method for deleting human being from database
+     */
+    public boolean deleteHumanBeing(int id) {
+        try {
+            String sql = "DELETE FROM human_being WHERE id = ?";
+
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, id);
+
+            int rowsAffected = statement.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     /*
     method for reading human being from database
@@ -93,7 +118,8 @@ public class DbManager {
                             WeaponType.valueOf(resultSet.getString("weapon_type").toUpperCase()),
                             new Car(resultSet.getString("car_name"))
                     );
-
+                    humanBeing.setId(resultSet.getInt("id"));
+                    humanBeing.setCreationDate(resultSet.getTimestamp("creation_date"));
                     humanBeings.put(humanBeing.getId(), humanBeing);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Error while reading human being from database: " + e.getMessage());
@@ -141,5 +167,50 @@ public class DbManager {
         }
     }
 
+    /*
+    get users from database
+     */
+    public HashMap<String, User> getUsers() {
+        HashMap<String, User> users = new HashMap<>();
 
+        try {
+            String sql = "SELECT * FROM users";
+
+            PreparedStatement statement = conn.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                users.put(resultSet.getString("username"),
+                        new User(resultSet.getString("username"),
+                                resultSet.getString("password_sha256"),
+                                resultSet.getInt("id")));
+            }
+
+            resultSet.close();
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    /*
+    method for adding user to database
+     */
+    public boolean addUser(User user) {
+        try {
+            String sql = "INSERT INTO users (username, password_sha256) VALUES (?, ?)";
+
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getPasswordSha256());
+
+            int rowsAffected = statement.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -185,6 +185,11 @@ public class HumanBeing implements Comparable<HumanBeing>, Validatable, Serializ
         return car;
     }
 
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -202,6 +207,7 @@ public class HumanBeing implements Comparable<HumanBeing>, Validatable, Serializ
                 weaponType == that.weaponType &&
                 car.equals(that.car);
     }
+
 
     @Override
     public int hashCode() {

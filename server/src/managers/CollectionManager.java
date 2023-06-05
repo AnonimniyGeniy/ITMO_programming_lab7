@@ -1,6 +1,7 @@
 package managers;
 
 import collections.HumanBeing;
+import models.User;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -15,6 +16,7 @@ public class CollectionManager {
 
     private final LocalDateTime creationTime;
     private final FileManager fileManager;
+    private final DbManager dbManager;
     /**
      * Comparator to sort TreeMap by value of HumanBeing impact speed
      */
@@ -25,23 +27,21 @@ public class CollectionManager {
         }
     };
     private TreeMap<Integer, HumanBeing> humanBeingCollection;
-
-    private HashMap<String, String> users = new HashMap<>(); // username: password
-
+    private HashMap<String, User> users = new HashMap<>(); // username: User
     private HashMap<Integer, String> idOwner = new HashMap<>(); // id: username
-
 
     /**
      * Constructor for CollectionManager
      *
      * @param fileManager - FileManager for working with file
      */
-    public CollectionManager(FileManager fileManager) {
+    public CollectionManager(FileManager fileManager, DbManager dbManager) {
         this.fileManager = fileManager;
+        this.dbManager = dbManager;
         humanBeingCollection = new TreeMap(humanBeingComparator);
         creationTime = LocalDateTime.now();
-
-        users.put("user", "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f");
+        //dbManager.getCollection();
+        this.users = dbManager.getUsers();
         idOwner.put(1, "user");
         idOwner.put(2, "user");
         idOwner.put(3, "user");
@@ -60,6 +60,7 @@ public class CollectionManager {
     check if user has access to element with id
      */
     public boolean checkAccess(String username, int id) {
+
         return idOwner.get(id).equals(username);
     }
 
@@ -74,7 +75,9 @@ public class CollectionManager {
         for (int i = 0; i < humanBeingCollection.size(); i++) {
             if (idOwner.get(i).equals(username)) {
                 //добавить проверку на то что все в бд сохранилось
-                this.humanBeingCollection.remove(i);
+                if (dbManager.deleteHumanBeing(i)) {
+                    this.humanBeingCollection.remove(i);
+                }
             }
         }
 
@@ -93,9 +96,10 @@ public class CollectionManager {
      * @param obj
      */
     public void insert(int id, HumanBeing obj, String username) {
-        this.humanBeingCollection.put(id, obj);
-        idOwner.put(id, username);
-        //надо дописать добавление в бд и добавление строчки что нужный юзер добавил
+        if (dbManager.addHumanBeing(obj, users.get(username).getId())) {
+            this.humanBeingCollection.put(id, obj);
+            idOwner.put(id, username);
+        }
     }
 
     /**
@@ -107,18 +111,12 @@ public class CollectionManager {
         return humanBeingCollection.lastKey();
     }
 
-    /**
-     * saves collection to file
-     */
-    public void saveCollection() {
-        fileManager.writeCollection(humanBeingCollection);
-    }
 
     /**
      * loads collection from file
      */
     public void loadCollection() {
-        this.humanBeingCollection = fileManager.readCollection();
+        this.humanBeingCollection = dbManager.getCollection();
     }
 
 
@@ -131,7 +129,9 @@ public class CollectionManager {
     public boolean removeById(int id, String username) {
         if (this.humanBeingCollection.containsKey(id) && idOwner.get(id).equals(username)) {
             //добавить проверку на то что все в бд сохранилось
-            this.humanBeingCollection.remove(id);
+            if (dbManager.deleteHumanBeing(id)) {
+                this.humanBeingCollection.remove(id);
+            }
             return true;
         } else {
             return false;
@@ -142,10 +142,14 @@ public class CollectionManager {
      * removes all elements from collection that are greater than given
      */
     public void removeGreater(HumanBeing humanBeing, String username) {
-        humanBeingCollection.entrySet().removeIf(
-                entry -> (entry.getValue().compareTo(humanBeing) > 0 &&
-                        idOwner.get(entry.getKey()).equals(username))
-        );
+        for (Map.Entry<Integer, HumanBeing> entry : humanBeingCollection.entrySet()) {
+            if (entry.getValue().compareTo(humanBeing) > 0 &&
+                    idOwner.get(entry.getKey()).equals(username)) {
+                if (dbManager.deleteHumanBeing(entry.getKey())) {
+                    humanBeingCollection.remove(entry.getKey());
+                }
+            }
+        }
     }
 
     /**
@@ -158,7 +162,7 @@ public class CollectionManager {
     /*
     returns map of all users and their passwords
      */
-    public Map<String, String> getUsers() {
+    public Map<String, User> getUsers() {
         return users;
     }
 

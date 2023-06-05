@@ -10,10 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
@@ -60,7 +58,12 @@ public class Server {
                 if (selector.select(5000) == 0) {
                     continue;
                 }
-                for (SelectionKey key : selector.selectedKeys()) {
+                Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+                while (iterator.hasNext()) {
+                    SelectionKey key = iterator.next();
+                    if (!key.isValid()) {
+                        continue;
+                    }
                     if (key.isAcceptable()) {
                         SocketChannel channel = serverSocketChannel.accept();
                         channel.configureBlocking(false);
@@ -69,10 +72,10 @@ public class Server {
                     } else if (key.isReadable()) {
                         channelThreadPool.execute(() -> handleRead(key, selector));
                     } else if (key.isWritable()) {
-                        //handleWrite(key);
+                        // handleWrite(key);
                         key.channel().register(selector, SelectionKey.OP_READ);
                     }
-                    selector.selectedKeys().remove(key);
+                    iterator.remove();
                 }
             }
         } catch (IOException e) {
@@ -89,6 +92,7 @@ public class Server {
         try {
             int readBytes = channel.read(buffer);
             if (readBytes == -1) {
+                //System.out.println("Client disconnected");
                 channel.close();
                 return;
             }
@@ -106,15 +110,15 @@ public class Server {
                 sendResponse(channel, commandResponse);
                 channel.register(selector, SelectionKey.OP_WRITE, serialize(commandResponse));
             }
-        } catch (SocketException e) {
-            System.out.println("Client disconnected");
+        } catch (SocketException | ClosedChannelException e) {
+            //System.out.println("Client disconnected");
             try {
                 channel.close();
             } catch (IOException ex) {
-                ex.printStackTrace();
+                System.out.println("Error while closing channel");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Something went wrong");
         }
     }
 

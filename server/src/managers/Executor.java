@@ -26,7 +26,6 @@ public class Executor {
         commands.add(new Info(collectionManager,commandReceiver));
         commands.add(new Insert(collectionManager,commandReceiver));
         //commands.add(new Exit(collectionManager));
-        commands.add(new Save(collectionManager,commandReceiver));
         commands.add(new Show(collectionManager,commandReceiver));
         commands.add(new Remove(collectionManager,commandReceiver));
         commands.add(new Update(collectionManager,commandReceiver));
@@ -72,8 +71,10 @@ public class Executor {
                 response = command.execute((String[]) userCommand.getArguments(), userCommand.getElement(), userCommand.getUsername());
                 commandManager.addHistory(userCommand.getCommandName());
             }
-            Command save = commandManager.getCommands().get("save");
-            save.execute(new String[]{}, null, userCommand.getUsername());
+
+            //Command save = commandManager.getCommands().get("save");
+            //save.execute(new String[]{}, null, userCommand.getUsername());
+
             return response;
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

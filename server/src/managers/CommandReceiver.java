@@ -50,11 +50,6 @@ public class CommandReceiver {
         }
     }
 
-    public CommandResponse save(String[] args, Object obj) {
-        collectionManager.saveCollection();
-        return new CommandResponse("Collection saved", null);
-    }
-
 
     public CommandResponse replaceIfLower(String[] args, Object obj, String username) {
         //check if key exists

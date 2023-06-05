@@ -1,8 +1,12 @@
 package server;
 
+import collections.HumanBeing;
 import managers.CollectionManager;
 import managers.DbManager;
 import managers.FileManager;
+
+import java.util.HashMap;
+import java.util.TreeMap;
 
 
 public class App {
@@ -21,9 +25,12 @@ public class App {
             System.exit(1);
         }
         FileManager fileManager = new FileManager(path);
-        CollectionManager collectionManager = new CollectionManager(fileManager);
+
         DbManager dbManager = new DbManager(user.equals("s367132"));
         dbManager.connect();
+
+        CollectionManager collectionManager = new CollectionManager(fileManager, dbManager);
+
 
         try {
             collectionManager.loadCollection();
