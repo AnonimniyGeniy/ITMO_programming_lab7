@@ -1,9 +1,10 @@
 package managers;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import collections.*;
+
+import java.sql.*;
 import java.util.Properties;
+import java.util.TreeMap;
 
 public class DbManager {
 
@@ -35,8 +36,110 @@ public class DbManager {
             System.out.println("Error while connecting to database: " + e.getMessage());
         }
     }
-    //какой-то метод для считывания коллекции
+    /*
+    method for adding human being to database
+     */
+    public boolean addHumanBeing(HumanBeing humanBeing, int userId) {
+        try {
+            String sql = "INSERT INTO human_being (name, coordinates_x, coordinates_y, creation_date, real_hero, " +
+                    "has_toothpick, impact_speed, soundtrack_name, minutes_of_waiting, weapon_type, car_name, user_id) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, humanBeing.getName());
+            statement.setDouble(2, humanBeing.getCoordinates().getX());
+            statement.setInt(3, humanBeing.getCoordinates().getY());
+            statement.setTimestamp(4, new java.sql.Timestamp(humanBeing.getCreationDate().getTime()));
+            statement.setBoolean(5, humanBeing.isRealHero());
+            statement.setBoolean(6, humanBeing.getHasToothpick());
+            statement.setFloat(7, humanBeing.getImpactSpeed());
+            statement.setString(8, humanBeing.getSoundtrackName());
+            statement.setDouble(9, humanBeing.getMinutesOfWaiting());
+            statement.setString(10, humanBeing.getWeaponType().name());
+            statement.setString(11, humanBeing.getCar().getName());
+            statement.setInt(12,  userId);
+
+            int rowsAffected = statement.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /*
+    method for reading human being from database
+     */
+    public TreeMap<Integer, HumanBeing> getCollection() {
+        TreeMap<Integer, HumanBeing> humanBeings = new TreeMap<>();
+
+        try {
+            String sql = "SELECT * FROM human_being";
+
+            PreparedStatement statement = conn.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                try {
+                    HumanBeing humanBeing = new HumanBeing(
+                            resultSet.getString("name"),
+                            new Coordinates(resultSet.getDouble("coordinates_x"), resultSet.getInt("coordinates_y")),
+                            resultSet.getBoolean("real_hero"),
+                            resultSet.getBoolean("has_toothpick"),
+                            resultSet.getFloat("impact_speed"),
+                            resultSet.getString("soundtrack_name"),
+                            resultSet.getDouble("minutes_of_waiting"),
+                            WeaponType.valueOf(resultSet.getString("weapon_type").toUpperCase()),
+                            new Car(resultSet.getString("car_name"))
+                    );
+
+                    humanBeings.put(humanBeing.getId(), humanBeing);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Error while reading human being from database: " + e.getMessage());
+                }
+            }
+
+            resultSet.close();
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return humanBeings;
+    }
+
+    /*
+    method for updating human being in database
+     */
+    public boolean updateHumanBeing(HumanBeing humanBeing, int userId) {
+        try {
+            String sql = "UPDATE human_being SET name=?, coordinates_x=?, coordinates_y=?, creation_date=?, " +
+                    "real_hero=?, has_toothpick=?, impact_speed=?, soundtrack_name=?, minutes_of_waiting=?, " +
+                    "weapon_type=?, car_name=?, user_id=? WHERE id=?";
+
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, humanBeing.getName());
+            statement.setDouble(2, humanBeing.getCoordinates().getX());
+            statement.setInt(3, humanBeing.getCoordinates().getY());
+            statement.setTimestamp(4, new java.sql.Timestamp(humanBeing.getCreationDate().getTime()));
+            statement.setBoolean(5, humanBeing.isRealHero());
+            statement.setBoolean(6, humanBeing.getHasToothpick());
+            statement.setFloat(7, humanBeing.getImpactSpeed());
+            statement.setString(8, humanBeing.getSoundtrackName());
+            statement.setDouble(9, humanBeing.getMinutesOfWaiting());
+            statement.setString(10, humanBeing.getWeaponType().name());
+            statement.setString(11, humanBeing.getCar().getName());
+            statement.setInt(12, userId);
+            statement.setInt(13, humanBeing.getId());
+
+            int rowsAffected = statement.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
 }

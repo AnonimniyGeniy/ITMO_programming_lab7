@@ -23,6 +23,13 @@ public class Car implements Validatable, Serializable {
         return name != null;
     }
 
+    /**
+     * @return name
+     */
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String toString() {
         return "Car " + name;

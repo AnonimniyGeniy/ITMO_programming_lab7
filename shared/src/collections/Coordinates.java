@@ -15,6 +15,20 @@ public class Coordinates implements Validatable, Serializable{
         this.y = y;
 
     }
+    /**
+     * x getter
+     * @return x-coordinate
+     */
+    public double getX() {
+        return x;
+    }
+    /**
+     * y getter
+     * @return y-coordinate
+     */
+    public int getY() {
+        return y;
+    }
 
     public boolean validate() {
         return x <= 180;
