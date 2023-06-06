@@ -15,7 +15,6 @@ import java.util.TreeMap;
 public class CollectionManager {
 
     private final LocalDateTime creationTime;
-    private final FileManager fileManager;
     private final DbManager dbManager;
     /**
      * Comparator to sort TreeMap by value of HumanBeing impact speed
@@ -35,8 +34,7 @@ public class CollectionManager {
      *
      * @param fileManager - FileManager for working with file
      */
-    public CollectionManager(FileManager fileManager, DbManager dbManager) {
-        this.fileManager = fileManager;
+    public CollectionManager(DbManager dbManager) {
         this.dbManager = dbManager;
         humanBeingCollection = new TreeMap(humanBeingComparator);
         creationTime = LocalDateTime.now();

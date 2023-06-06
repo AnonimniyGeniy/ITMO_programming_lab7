@@ -77,7 +77,7 @@ public class Executor {
 
                         CommandRequest request = new CommandRequest(command[0], args, object, username, password);
                         manageResponse(request);
-                        client.run(request);
+                        //client.run(request);
                     } else {
                         System.out.println("Wrong command, use help to get list of commands");
                     }
@@ -171,7 +171,6 @@ public class Executor {
                     CommandRequest request = new CommandRequest(command[0], args, object, username, password);
                     status = Status.OK;
                     manageResponse(request);
-                    //somehow send request to server
                 }
 
             } while (status == Status.OK && scanner.hasNextLine());

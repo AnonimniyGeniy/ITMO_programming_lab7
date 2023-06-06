@@ -42,18 +42,6 @@ public class Main {
 
         executor.consoleMode();
 
-        //client.connect();
-
-        //client.sendObject("123123123");
-        //CommandResponse response = new CommandResponse("123123123", null);
-
-        //client.close();
-
-        //CommandManager commandManager = new CommandManager(commandDescriptions);
-        //managers.Executor executor = new managers.Executor(commandManager, console);
-        //executor.setClient(client);
-        //executor.consoleMode();
-
 
     }
 }
