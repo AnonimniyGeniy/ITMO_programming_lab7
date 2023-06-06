@@ -67,6 +67,7 @@ public class DbManager {
 
             int rowsAffected = statement.executeUpdate();
 
+
             return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -137,7 +138,7 @@ public class DbManager {
     /*
     method for updating human being in database
      */
-    public boolean updateHumanBeing(HumanBeing humanBeing, int userId) {
+    public boolean updateHumanBeing(HumanBeing humanBeing, int userId, int id) {
         try {
             String sql = "UPDATE human_being SET name=?, coordinates_x=?, coordinates_y=?, creation_date=?, " +
                     "real_hero=?, has_toothpick=?, impact_speed=?, soundtrack_name=?, minutes_of_waiting=?, " +
@@ -156,7 +157,7 @@ public class DbManager {
             statement.setString(10, humanBeing.getWeaponType().name());
             statement.setString(11, humanBeing.getCar().getName());
             statement.setInt(12, userId);
-            statement.setInt(13, humanBeing.getId());
+            statement.setInt(13, id);
 
             int rowsAffected = statement.executeUpdate();
 

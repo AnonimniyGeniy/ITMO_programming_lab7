@@ -42,8 +42,7 @@ public class CommandReceiver {
         }
         HumanBeing humanBeing = (HumanBeing) obj;
         humanBeing.setId(key);
-        if (collectionManager.removeById(key, username)){
-            collectionManager.insert(key, humanBeing, username);
+        if (collectionManager.updateHumanBeing(humanBeing, key, username)){
             return new CommandResponse("Element updated successfully.", null);
         }else{
             return new CommandResponse("You don't have permission to update this element or it doesn't exist.", null);
@@ -57,9 +56,8 @@ public class CommandReceiver {
         return collectionManager.getHumanBeingCollection().containsKey(key)
                 ? Optional.ofNullable((HumanBeing) obj)
                 .map(humanBeing -> {
-                    humanBeing.setId(key);
                     if (collectionManager.getHumanBeingCollection().get(key).compareTo(humanBeing) > 0 && collectionManager.checkAccess(username, key)) {
-                        collectionManager.insert(key, humanBeing, username);
+                        collectionManager.updateHumanBeing(humanBeing, key, username);
                         return new CommandResponse("Element changed successfully.", null);
                     } else {
                         return new CommandResponse("Element is not lower or you don't have permission to change it.", null);
@@ -96,23 +94,9 @@ public class CommandReceiver {
     }
 
     public CommandResponse insert(String[] args, Object obj, String username) {
-        //console.println(args[0] + args[1]);
-        int key = Integer.parseInt(args[0]);
-//        if (collectionManager.getHumanBeingCollection().containsKey(key)) {
-//            return new CommandResponse("Element with this key already exists.", null);
-//        }
-        Optional<HumanBeing> optionalHumanBeing = collectionManager.getHumanBeingCollection().values().stream()
-                .filter(human -> human.getId() == key)
-                .findFirst();
-
-        if (optionalHumanBeing.isPresent()) {
-            return new CommandResponse("Element with this key already exists.", null);
-        }
-
         HumanBeing humanBeing = null;
         humanBeing = (HumanBeing) obj;
-        humanBeing.setId(key);
-        collectionManager.insert(key, humanBeing, username);
+        collectionManager.insert(humanBeing, username);
         return new CommandResponse("Element added successfully.", null);
 
     }
@@ -126,9 +110,7 @@ public class CommandReceiver {
 
     public CommandResponse show(String[] args, Object obj) {
         //ArrayList<HumanBeing> coll = new ArrayList<>(List.of(collectionManager.getArray()));
-        List<HumanBeing> elements = Arrays.stream(collectionManager.getArray())
-                .sorted(Comparator.reverseOrder())
-                .toList();
+        List<HumanBeing> elements = Arrays.stream(collectionManager.getArray()).toList();
 
         return new CommandResponse("Showed all elements of collection", elements);
     }

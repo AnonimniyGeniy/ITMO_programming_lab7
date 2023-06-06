@@ -7,7 +7,7 @@ import managers.CommandReceiver;
 /**
  * Command that inserts element in the collection
  */
-@CommandInfo(name = "insert", description = "Adds element to the collection by id. Syntax: insert id {element}", argsCount = 1, requiredObjectType = HumanBeing.class, argumentTypes = {int.class})
+@CommandInfo(name = "insert", description = "Adds element to the collection by id. Syntax: insert id {element}", argsCount =0, requiredObjectType = HumanBeing.class, argumentTypes = {})
 public class Insert extends AbstractCommand {
     private final CommandReceiver commandReceiver;
     private final CollectionManager collectionManager;

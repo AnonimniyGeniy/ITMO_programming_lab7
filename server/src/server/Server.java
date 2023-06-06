@@ -70,7 +70,8 @@ public class Server {
                         channel.register(selector, SelectionKey.OP_READ);
                         System.out.println("new connection");
                     } else if (key.isReadable()) {
-                        channelThreadPool.execute(() -> handleRead(key, selector));
+                        //channelThreadPool.execute(() -> handleRead(key, selector));
+                        handleRead(key, selector);
                     } else if (key.isWritable()) {
                         // handleWrite(key);
                         key.channel().register(selector, SelectionKey.OP_READ);

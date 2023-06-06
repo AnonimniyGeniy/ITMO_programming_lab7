@@ -83,6 +83,10 @@ public class CollectionManager {
 
     }
 
+    public boolean updateHumanBeing(HumanBeing humanBeing, int id, String username) {
+        return dbManager.updateHumanBeing(humanBeing, users.get(username).getId(), id);
+    }
+
     /**
      * getter for creation time of collection
      *
@@ -95,9 +99,10 @@ public class CollectionManager {
     /**
      * @param obj
      */
-    public void insert(int id, HumanBeing obj, String username) {
+    public void insert(HumanBeing obj, String username) {
+        int id = getLastId() + 1;
         if (dbManager.addHumanBeing(obj, users.get(username).getId())) {
-            this.humanBeingCollection.put(id, obj);
+            humanBeingCollection.put(id, obj);
             idOwner.put(id, username);
         }
     }
