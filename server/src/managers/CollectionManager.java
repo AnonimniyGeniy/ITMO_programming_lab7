@@ -3,6 +3,7 @@ package managers;
 import collections.HumanBeing;
 import models.User;
 
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,7 +33,6 @@ public class CollectionManager {
     /**
      * Constructor for CollectionManager
      *
-     * @param fileManager - FileManager for working with file
      */
     public CollectionManager(DbManager dbManager) {
         this.dbManager = dbManager;
@@ -167,6 +167,27 @@ public class CollectionManager {
      */
     public Map<String, User> getUsers() {
         return users;
+    }
+
+    /*
+    method that registers new user
+     */
+    public boolean register(String username, String password) {
+        if (users.containsKey(username)) {
+            return false;
+        } else {
+            //get last id and increment it
+            int id = users.size() + 1;
+            User user = null;
+            try {
+                user = new User(username, PasswordUtil.hashPassword(password), id);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+            users.put(username, user);
+            dbManager.addUser(user);
+            return dbManager.addUser(user);
+        }
     }
 
 }

@@ -62,7 +62,10 @@ public class Executor {
                 if (userCommand.getCommandName().equals("history")) {
                     response = command.execute((String[]) userCommand.getArguments(), commandManager, userCommand.getUsername());
                     commandManager.addHistory(userCommand.getCommandName());
-                } else {
+                }else if (userCommand.getCommandName().equals("register")) {
+                    response = command.execute((String[]) userCommand.getArguments(), userCommand.getPassword(), userCommand.getUsername());
+                    commandManager.addHistory(userCommand.getCommandName());
+                }else {
                     response = command.execute((String[]) userCommand.getArguments(), null, userCommand.getUsername());
                     commandManager.addHistory(userCommand.getCommandName());
                 }
@@ -71,9 +74,6 @@ public class Executor {
                 response = command.execute((String[]) userCommand.getArguments(), userCommand.getElement(), userCommand.getUsername());
                 commandManager.addHistory(userCommand.getCommandName());
             }
-
-            //Command save = commandManager.getCommands().get("save");
-            //save.execute(new String[]{}, null, userCommand.getUsername());
 
             return response;
         } catch (Exception e) {

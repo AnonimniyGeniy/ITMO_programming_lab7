@@ -167,4 +167,13 @@ public class CommandReceiver {
                 .collect(Collectors.toList());
         return new CommandResponse("Got commands", commandDescriptions);
     }
+
+    public CommandResponse register(String[] args, String username) {
+        String password = args[1];
+        if (collectionManager.register(username, password)) {
+            return new CommandResponse("User registered successfully", null);
+        } else {
+            return new CommandResponse("User with this username already exists", null);
+        }
+    }
 }
