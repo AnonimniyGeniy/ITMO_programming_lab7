@@ -32,7 +32,6 @@ public class CollectionManager {
 
     /**
      * Constructor for CollectionManager
-     *
      */
     public CollectionManager(DbManager dbManager) {
         this.dbManager = dbManager;
@@ -58,8 +57,8 @@ public class CollectionManager {
     check if user has access to element with id
      */
     public boolean checkAccess(String username, int id) {
-
-        return idOwner.get(id).equals(username);
+        String owner = idOwner.get(id);
+        return owner.equals(username);
     }
 
     /**
@@ -71,7 +70,7 @@ public class CollectionManager {
     public void setHumanBeingCollection(TreeMap<Integer, HumanBeing> humanBeingCollection, String username) {
         //delete all elements from collection that are owned by user
         for (int i = 0; i < humanBeingCollection.size(); i++) {
-            if (idOwner.get(i).equals(username)) {
+            if (checkAccess(username, i)) {
                 //добавить проверку на то что все в бд сохранилось
                 if (dbManager.deleteHumanBeing(i)) {
                     this.humanBeingCollection.remove(i);
@@ -130,8 +129,7 @@ public class CollectionManager {
      * @return true if element was removed, false if element was not found
      */
     public boolean removeById(int id, String username) {
-        if (this.humanBeingCollection.containsKey(id) && idOwner.get(id).equals(username)) {
-            //добавить проверку на то что все в бд сохранилось
+        if (this.humanBeingCollection.containsKey(id) && checkAccess(username, id)) {
             if (dbManager.deleteHumanBeing(id)) {
                 this.humanBeingCollection.remove(id);
             }
@@ -185,9 +183,22 @@ public class CollectionManager {
                 throw new RuntimeException(e);
             }
             users.put(username, user);
-            dbManager.addUser(user);
             return dbManager.addUser(user);
         }
     }
 
+    /*
+    method that checks if user exists and password is correct
+     */
+    public boolean login(String username, String password) {
+        if (users.containsKey(username)) {
+            try {
+                return PasswordUtil.hashPassword(password).equals(users.get(username).getPasswordSha256());
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return false;
+        }
+    }
 }

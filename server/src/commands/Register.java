@@ -9,7 +9,7 @@ public class Register extends AbstractCommand{
     private final CollectionManager collectionManager;
 
     public Register(CollectionManager collectionManager, CommandReceiver commandReceiver) {
-        super("register", "register new user");
+        super("register", "register new user, syntax: register <username> <password>");
         this.collectionManager = collectionManager;
         this.commandReceiver = commandReceiver;
     }

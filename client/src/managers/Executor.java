@@ -109,11 +109,20 @@ public class Executor {
             }
             for (int i = 1; i < command.length; i++) {
                 //check that ith argument can be cast to class of ith argument in commandDescription
-                try {
-                    parseInt(command[i]);
-                } catch (NumberFormatException e) {
-                    System.out.println("Wrong type of argument");
-                    return false;
+                if (description.getArgumentTypes().get(i - 1) != int.class && description.getArgumentTypes().get(i - 1) != Integer.class) {
+                    try {
+                        description.getArgumentTypes().get(i - 1).cast(command[i]);
+                    } catch (ClassCastException e) {
+                        System.out.println("Wrong type of argument");
+                        return false; // Casting failed
+                    }
+                } else {
+                    try {
+                        parseInt(command[i]);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Wrong type of argument");
+                        return false;
+                    }
                 }
             }
             return true;
