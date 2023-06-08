@@ -39,10 +39,6 @@ public class CollectionManager {
         creationTime = LocalDateTime.now();
         //dbManager.getCollection();
         this.users = dbManager.getUsers();
-        idOwner.put(1, "user");
-        idOwner.put(2, "user");
-        idOwner.put(3, "user");
-
     }
 
     /**
@@ -116,12 +112,27 @@ public class CollectionManager {
         return humanBeingCollection.lastKey();
     }
 
+    /**
+     * gets all owners
+     */
+    public HashMap<Integer, Integer> getOwners() {
+        return dbManager.getOwners();
+    }
 
     /**
      * loads collection from file
      */
     public void loadCollection() {
         this.humanBeingCollection = dbManager.getCollection();
+        HashMap<Integer, Integer> owners = dbManager.getOwners();
+        for (Map.Entry<Integer, Integer> entry : owners.entrySet()) {
+            for(Map.Entry<String, User> user : users.entrySet()){
+                if (user.getValue().getId() == entry.getValue()) {
+                    idOwner.put(entry.getKey(), user.getKey());
+                    break;
+                }
+            }
+        }
     }
 
 

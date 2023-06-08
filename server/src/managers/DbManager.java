@@ -74,6 +74,7 @@ public class DbManager {
             return false;
         }
     }
+
     /*
     method for deleting human being from database
      */
@@ -134,6 +135,32 @@ public class DbManager {
         }
         return humanBeings;
     }
+
+    public HashMap<Integer, Integer> getOwners() {
+        HashMap<Integer, Integer> owners = new HashMap<>();
+
+        try {
+            String sql = "SELECT * FROM human_being";
+
+            PreparedStatement statement = conn.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                try {
+                    owners.put(resultSet.getInt("id"), resultSet.getInt("user_id"));
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Error while reading human being from database: " + e.getMessage());
+                }
+            }
+
+            resultSet.close();
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return owners;
+    }
+
 
     /*
     method for updating human being in database
