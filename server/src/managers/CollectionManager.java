@@ -81,6 +81,9 @@ public class CollectionManager {
     }
 
     public boolean updateHumanBeing(HumanBeing humanBeing, int id, String username) {
+        if (!checkAccess(username, id)) {
+            return false;
+        }
         return dbManager.updateHumanBeing(humanBeing, users.get(username).getId(), id);
     }
 
