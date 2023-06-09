@@ -251,4 +251,45 @@ public class DbManager {
             return false;
         }
     }
+
+    /*
+    method that creates required tables, if they don't exist
+     */
+    public void createTablesIfNotExist() {
+        try {
+            Statement statement = conn.createStatement();
+
+            // Создание таблицы users
+            String createUsersTable = "CREATE TABLE IF NOT EXISTS users (" +
+                    "id SERIAL PRIMARY KEY," +
+                    "username VARCHAR(255) NOT NULL," +
+                    "password VARCHAR(255) NOT NULL" +
+                    ")";
+            statement.executeUpdate(createUsersTable);
+
+            // Создание таблицы humanbeing
+            String createHumanBeingTable = "CREATE TABLE IF NOT EXISTS humanbeing (" +
+                    "id SERIAL PRIMARY KEY," +
+                    "name VARCHAR(255) NOT NULL," +
+                    "coordinates_x DOUBLE PRECISION NOT NULL," +
+                    "coordinates_y INT NOT NULL," +
+                    "creation_date TIMESTAMPTZ NOT NULL," +
+                    "real_hero BOOLEAN NOT NULL," +
+                    "has_toothpick BOOLEAN," +
+                    "impact_speed FLOAT NOT NULL," +
+                    "soundtrack_name VARCHAR(255) NOT NULL," +
+                    "minutes_of_waiting DOUBLE PRECISION," +
+                    "weapon_type VARCHAR(50)," +
+                    "car_name VARCHAR(255)," +
+                    "user_id INT NOT NULL" +
+                    ")";
+            statement.executeUpdate(createHumanBeingTable);
+
+            System.out.println("Таблицы созданы успешно.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
