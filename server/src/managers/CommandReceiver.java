@@ -9,14 +9,17 @@ import commands.CommandResponse;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CommandReceiver {
     private final CollectionManager collectionManager;
+    private ReentrantLock collectionLock;
 
     public CommandReceiver(CollectionManager collectionManager) {
         this.collectionManager = collectionManager;
+        this.collectionLock = new ReentrantLock();
     }
 
 
@@ -28,6 +31,7 @@ public class CommandReceiver {
                 .forEach(command -> stringBuilder.append(command.getName()).append(" - ").append(command.describe()).append("\n"));
 
         stringBuilder.append("help - ").append("shows help for available commands");
+        stringBuilder.append("\nlogin - ").append("change your username and password");
         return new CommandResponse(stringBuilder.toString(), null);
     }
 
@@ -42,10 +46,15 @@ public class CommandReceiver {
         }
         HumanBeing humanBeing = (HumanBeing) obj;
         humanBeing.setId(key);
-        if (collectionManager.updateHumanBeing(humanBeing, key, username)){
-            return new CommandResponse("Element updated successfully.", null);
-        }else{
-            return new CommandResponse("You don't have permission to update this element or it doesn't exist.", null);
+        collectionLock.lock();
+        try {
+            if (collectionManager.updateHumanBeing(humanBeing, key, username)) {
+                return new CommandResponse("Element updated successfully.", null);
+            } else {
+                return new CommandResponse("You don't have permission to update this element or it doesn't exist.", null);
+            }
+        } finally {
+            collectionLock.unlock();
         }
     }
 
@@ -53,30 +62,47 @@ public class CommandReceiver {
     public CommandResponse replaceIfLower(String[] args, Object obj, String username) {
         //check if key exists
         int key = Integer.parseInt(args[0]);
-        return collectionManager.getHumanBeingCollection().containsKey(key)
-                ? Optional.ofNullable((HumanBeing) obj)
-                .map(humanBeing -> {
-                    if (collectionManager.getHumanBeingCollection().get(key).compareTo(humanBeing) > 0 && collectionManager.checkAccess(username, key)) {
-                        collectionManager.updateHumanBeing(humanBeing, key, username);
-                        return new CommandResponse("Element changed successfully.", null);
-                    } else {
-                        return new CommandResponse("Element is not lower or you don't have permission to change it.", null);
-                    }
-                })
-                .orElse(new CommandResponse("Invalid object.", null))
-                : new CommandResponse("Key doesn't exist.", null);
+        collectionLock.lock();
+        CommandResponse commandResponse = null;
+        try {
+            commandResponse = collectionManager.getHumanBeingCollection().containsKey(key)
+                    ? Optional.ofNullable((HumanBeing) obj)
+                    .map(humanBeing -> {
+                        if (collectionManager.getHumanBeingCollection().get(key).compareTo(humanBeing) > 0 && collectionManager.checkAccess(username, key)) {
+                            collectionManager.updateHumanBeing(humanBeing, key, username);
+                            return new CommandResponse("Element changed successfully.", null);
+                        } else {
+                            return new CommandResponse("Element is not lower or you don't have permission to change it.", null);
+                        }
+                    })
+                    .orElse(new CommandResponse("Invalid object.", null))
+                    : new CommandResponse("Key doesn't exist.", null);
+        } finally {
+            collectionLock.unlock();
+        }
+        return commandResponse;
 
     }
 
     public CommandResponse removeGreater(String[] args, Object obj, String username) {
-        collectionManager.removeGreater((HumanBeing) obj, username);
+        collectionLock.lock();
+        try {
+            collectionManager.removeGreater((HumanBeing) obj, username);
+        } finally {
+            collectionLock.unlock();
+        }
         return new CommandResponse("All greater elements was successfully removed", null);
     }
 
     public CommandResponse remove(String[] args, Object obj, String username) {
         int id = Integer.parseInt(args[0]);
-        boolean isRemoved = collectionManager.removeById(id, username);
-
+        collectionLock.lock();
+        boolean isRemoved = false;
+        try {
+            isRemoved = collectionManager.removeById(id, username);
+        } finally {
+            collectionLock.unlock();
+        }
         String message = isRemoved ? "Element with id " + id + " was removed" : "Element with id " + id + " wasn't found or you don't have permission to remove it";
 
         return new CommandResponse(message, null);
@@ -96,7 +122,12 @@ public class CommandReceiver {
     public CommandResponse insert(String[] args, Object obj, String username) {
         HumanBeing humanBeing = null;
         humanBeing = (HumanBeing) obj;
-        collectionManager.insert(humanBeing, username);
+        collectionLock.lock();
+        try {
+            collectionManager.insert(humanBeing, username);
+        } finally {
+            collectionLock.unlock();
+        }
         return new CommandResponse("Element added successfully.", null);
 
     }
@@ -116,9 +147,12 @@ public class CommandReceiver {
     }
 
     public CommandResponse clear(String[] args, Object object, String username) {
-
-        collectionManager.setHumanBeingCollection(new TreeMap<>(), username);
-
+        collectionLock.lock();
+        try {
+            collectionManager.setHumanBeingCollection(new TreeMap<>(), username);
+        } finally {
+            collectionLock.unlock();
+        }
         return new CommandResponse("All your elements was deleted", null);
     }
 
@@ -170,10 +204,15 @@ public class CommandReceiver {
 
     public CommandResponse register(String[] args, String username) {
         String password = args[1];
-        if (collectionManager.register(username, password)) {
-            return new CommandResponse("User registered successfully", null);
-        } else {
-            return new CommandResponse("User with this username already exists", null);
+        collectionLock.lock();
+        try {
+            if (collectionManager.register(username, password)) {
+                return new CommandResponse("User registered successfully", null);
+            } else {
+                return new CommandResponse("User with this username already exists", null);
+            }
+        }finally {
+            collectionLock.unlock();
         }
     }
 }

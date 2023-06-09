@@ -7,7 +7,6 @@ import managers.Executor;
 
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
@@ -26,7 +25,6 @@ public class Server {
     private int port;
     private ServerSocketChannel serverSocketChannel;
     private ExecutorService channelThreadPool;
-    private ReentrantLock collectionLock;
 
     public Server(CollectionManager collectionManager) {
         this.port = 5555;
@@ -49,7 +47,6 @@ public class Server {
         this.collectionManager = collectionManager;
         this.executor = new Executor(collectionManager);
         this.channelThreadPool = Executors.newFixedThreadPool(10);
-        this.collectionLock = new ReentrantLock();
     }
 
     public void run() {
@@ -70,7 +67,8 @@ public class Server {
                         channel.register(selector, SelectionKey.OP_READ);
                         System.out.println("new connection");
                     } else if (key.isReadable()) {
-                        channelThreadPool.execute(() -> handleRead(key, selector));
+                        Runnable runnable = () -> handleRead(key, selector);
+                        channelThreadPool.execute(runnable);
                         //handleRead(key, selector);
                     } else if (key.isWritable()) {
                         // handleWrite(key);
@@ -152,12 +150,7 @@ public class Server {
     }
 
     public CommandResponse runCommand(CommandRequest userCommand) {
-        collectionLock.lock();
-        try {
-            return executor.executeCommand(userCommand);
-        } finally {
-            collectionLock.unlock();
-        }
+        return executor.executeCommand(userCommand);
     }
 
     public byte[] serialize(Object obj) throws IOException {

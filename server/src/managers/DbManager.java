@@ -6,6 +6,8 @@ import collections.HumanBeing;
 import collections.WeaponType;
 import models.User;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Properties;
@@ -21,8 +23,16 @@ public class DbManager {
 
     public DbManager(boolean debug) {
         this.props = new Properties();
+
+//        try {
+//            props.load(new FileInputStream("./db.cfg"));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
         this.props.setProperty("user", "s367132");
         this.props.setProperty("password", "WJg3uEZw3Qys9hVm");
+
+
         this.debug = debug;
     }
 

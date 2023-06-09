@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import collections.askers.UserAsker;
 
 import static java.lang.Integer.parseInt;
 
@@ -63,6 +64,11 @@ public class Executor {
                         break;
                     } else if (command[0].equals("execute_script")) {
                         status = scriptMode(command[1]);
+                    }else if (command[0].equals("login")) {
+                        this.username = UserAsker.askUsername();
+                        this.password = UserAsker.askPassword();
+                        status = Status.OK;
+                        continue;
                     }
                     if (validateCommand(command)) {
                         CommandDescription description = commandManager.getCommand(command[0]);
@@ -166,6 +172,9 @@ public class Executor {
                     status = Status.EXIT;
                     return status;
                 }
+                // if command is login, change username and password on client
+
+
                 if (validateCommand(command)) {
                     CommandDescription description = commandManager.getCommand(command[0]);
                     //call needed asker
