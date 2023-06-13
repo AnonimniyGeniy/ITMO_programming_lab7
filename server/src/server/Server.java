@@ -29,6 +29,8 @@ public class Server {
     public Server(CollectionManager collectionManager) {
         this.port = 5555;
         boolean isRunning = false;
+
+
         while (!isRunning) {
             try {
                 serverSocketChannel = ServerSocketChannel.open();

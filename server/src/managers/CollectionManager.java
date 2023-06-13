@@ -1,7 +1,7 @@
 package managers;
 
 import collections.HumanBeing;
-import models.User;
+import collections.User;
 
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;

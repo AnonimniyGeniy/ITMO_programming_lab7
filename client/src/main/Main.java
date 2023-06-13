@@ -20,8 +20,10 @@ public class Main {
         int port = PortAsker.askPort();
         Client client = new Client("localhost", port);
 
-        String username = UserAsker.askUsername();
-        String password = UserAsker.askPassword();
+        //String username = UserAsker.askUsername();
+        //String password = UserAsker.askPassword();
+        String username = null;
+        String password = null;
 
         CommandRequest request = new CommandRequest("connect", new String[]{}, null, username, password);
         CommandResponse commandResponse = client.run(request);

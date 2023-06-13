@@ -16,7 +16,7 @@ public class App {
 
         DbManager dbManager = new DbManager(user.equals("s367132"));
         dbManager.connect();
-
+        dbManager.createTablesIfNotExist();
         CollectionManager collectionManager = new CollectionManager(dbManager);
 
 

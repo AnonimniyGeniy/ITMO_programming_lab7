@@ -60,12 +60,13 @@ public class Executor {
         Command command = commandManager.getCommands().get(userCommand.getCommandName());
         CommandResponse response = new CommandResponse("Nothing happen(", null);
         try {
-            if (userCommand.getCommandName().equals("connect") || userCommand.getCommandName().equals("help")) {
+            //if (userCommand.getCommandName().equals("connect") || userCommand.getCommandName().equals("help")) {
+            if (userCommand.getCommandName().equals("connect")) {
                 response = command.execute((String[]) userCommand.getArguments(), commandManager, userCommand.getUsername());
                 commandManager.addHistory(userCommand.getCommandName());
                 return response;
             }
-            if (userCommand.getCommandName().equals("register")) {
+            if (userCommand.getCommandName().equals("register") || userCommand.getCommandName().equals("login")) {
                 response = command.execute((String[]) userCommand.getArguments(), userCommand.getPassword(), userCommand.getUsername());
                 commandManager.addHistory(userCommand.getCommandName());
             }else if (collectionManager.login(userCommand.getUsername(), userCommand.getPassword())){

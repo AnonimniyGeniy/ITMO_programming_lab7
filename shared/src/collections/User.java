@@ -1,4 +1,4 @@
-package models;
+package collections;
 
 public class User {
     private final String username;

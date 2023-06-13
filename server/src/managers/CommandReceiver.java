@@ -215,4 +215,20 @@ public class CommandReceiver {
             collectionLock.unlock();
         }
     }
+
+    public CommandResponse login(String[] args, String username) {
+        String password = args[1];
+
+        collectionLock.lock();
+        try {
+            if (collectionManager.login(username, password)) {
+                return new CommandResponse("User logged in successfully", null);
+            } else {
+                return new CommandResponse("Wrong username or password", null);
+            }
+        }finally {
+            collectionLock.unlock();
+        }
+    }
+
 }
