@@ -97,6 +97,7 @@ public class CollectionManager {
      */
     public void insert(HumanBeing obj, String username) {
         int id = getLastId() + 1;
+        obj.setId(id);
         if (dbManager.addHumanBeing(obj, users.get(username).getId())) {
             humanBeingCollection.put(id, obj);
             idOwner.put(id, username);

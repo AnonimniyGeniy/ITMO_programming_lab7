@@ -6,6 +6,8 @@ import collections.HumanBeing;
 import collections.WeaponType;
 import collections.User;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Properties;
@@ -23,7 +25,7 @@ public class DbManager {
         this.props = new Properties();
 
 //        try {
-//            props.load(new FileInputStream("./db.cfg"));
+//            props.load(new FileInputStream("db.cfg"));
 //        } catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
