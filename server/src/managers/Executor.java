@@ -37,6 +37,7 @@ public class Executor {
         commands.add(new CountGreaterThanCar(collectionManager, commandReceiver));
         commands.add(new PrintDescending(collectionManager, commandReceiver));
         commands.add(new Register(collectionManager, commandReceiver));
+        commands.add(new Login(collectionManager, commandReceiver));
         //commands.add(new ExecuteScript);
         this.commandManager = new CommandManager(commands);
         commandManager.addCommand(new History(commandManager, commandReceiver));

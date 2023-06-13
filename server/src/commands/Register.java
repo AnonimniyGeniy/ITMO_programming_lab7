@@ -3,7 +3,7 @@ package commands;
 import managers.CollectionManager;
 import managers.CommandReceiver;
 
-@CommandInfo(name = "register", description = "register new user", argsCount = 2, argumentTypes = {String.class, String.class})
+@CommandInfo(name = "register", description = "register new user, usage: register <username> <password>")//, argsCount = 2, argumentTypes = {String.class, String.class})
 public class Register extends AbstractCommand{
     private final CommandReceiver commandReceiver;
     private final CollectionManager collectionManager;

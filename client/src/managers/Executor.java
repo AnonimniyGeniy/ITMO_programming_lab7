@@ -64,10 +64,12 @@ public class Executor {
                         break;
                     } else if (command[0].equals("execute_script")) {
                         status = scriptMode(command[1]);
-                    }else if (command[0].equals("login")) {
+                    }
+                    else if (command[0].equals("login") || command[0].equals("register")) {
                         this.username = UserAsker.askUsername();
                         this.password = UserAsker.askPassword();
-                        status = Status.OK;
+                        CommandRequest request = new CommandRequest(command[0], new String[]{username, password}, null, username, password);
+                        manageResponse(request);
                         continue;
                     }
                     if (validateCommand(command)) {
@@ -172,7 +174,6 @@ public class Executor {
                     status = Status.EXIT;
                     return status;
                 }
-                // if command is login, change username and password on client
 
 
                 if (validateCommand(command)) {

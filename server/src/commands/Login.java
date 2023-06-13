@@ -8,7 +8,7 @@ public class Login extends AbstractCommand {
     private final CommandReceiver commandReceiver;
     private final CollectionManager collectionManager;
 
-    public Login(CommandReceiver commandReceiver, CollectionManager collectionManager) {
+    public Login(CollectionManager collectionManager, CommandReceiver commandReceiver) {
         super("login", "login user");
         this.commandReceiver = commandReceiver;
         this.collectionManager = collectionManager;
