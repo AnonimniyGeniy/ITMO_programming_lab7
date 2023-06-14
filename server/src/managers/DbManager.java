@@ -30,7 +30,7 @@ public class DbManager {
 //            throw new RuntimeException(e);
 //        }
         this.props.setProperty("user", "s367132");
-        this.props.setProperty("password", "WJg3uEZw3Qys9hVm");
+        this.props.setProperty("password", "");
 
 
         this.debug = debug;
