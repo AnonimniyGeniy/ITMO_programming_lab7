@@ -127,7 +127,7 @@ public class CollectionManager {
         this.humanBeingCollection = dbManager.getCollection();
         HashMap<Integer, Integer> owners = dbManager.getOwners();
         for (Map.Entry<Integer, Integer> entry : owners.entrySet()) {
-            for(Map.Entry<String, User> user : users.entrySet()){
+            for (Map.Entry<String, User> user : users.entrySet()) {
                 if (user.getValue().getId() == entry.getValue()) {
                     idOwner.put(entry.getKey(), user.getKey());
                     break;
