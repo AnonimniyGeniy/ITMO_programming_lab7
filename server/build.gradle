@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'idea'
+}
+
+apply plugin : 'java'
+apply plugin : 'application'
+apply plugin : 'idea'
+group = 'org.lab7'
+version = '1.0-dev'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets.main.java.srcDirs = ['src']
+
+
+application {
+    mainClassName = 'server.App'
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.postgresql:postgresql:42.6.0'
+    implementation project(':shared')
+}
+
+
+jar {
+    manifest {
+        attributes("Main-Class": "server.App",
+                "Class-Path": configurations.compileClasspath.collect { it.getName() }.join(' ')
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

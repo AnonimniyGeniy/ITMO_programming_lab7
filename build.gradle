@@ -1,0 +1,6 @@
+
+plugins {
+    id("idea")
+}
+
+apply plugin : "idea"

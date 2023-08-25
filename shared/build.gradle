@@ -1,0 +1,36 @@
+plugins {
+    id 'java-library'
+}
+
+apply plugin : "java-library"
+version '1.0-final'
+group = 'org.lab7'
+
+repositories {
+    mavenCentral()
+}
+
+
+sourceSets.main.java.srcDirs = ['src']
+
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+}
+
+jar {
+
+    manifest {
+        attributes ("Main-Class": "Main",
+                    "Class-Path": configurations.compileClasspath.collect { it.getName() }.join(' '))
+    }
+/*
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+*/
+
+}
